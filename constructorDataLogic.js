@@ -6,6 +6,8 @@ class Block {
     
     constructor(data){
         this.data = data;
+        this.previousHash = previousHash;
+        this.hash = this.toHash();
     }
 
 
