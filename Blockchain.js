@@ -15,9 +15,7 @@ class Blockchain {
         this.chain.push(newBlock);
     }
     isValid(){
-        if(this.chain[0].previousHash !== ''){
-            return false;
-        }
+
         for(let i = 1; i < this.chain.length; i++){
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i - 1];
