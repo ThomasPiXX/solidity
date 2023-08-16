@@ -1,0 +1,24 @@
+const { sha256 } = require("ethereum-cryptography/sha256");
+const { toHex, utf8ToBytes } = require("ethereum-cryptography/utils");
+
+// the possible colors that the hash could represent
+const COLORS = ['red', 'green', 'blue', 'yellow', 'pink', 'orange'];
+
+// given a hash, return the color that created the hash
+function findColor(hash) {
+    for (let i = 0; i < COLORS.length; i++) {
+        const color = COLORS[i];
+        const colorBytes = utf8ToBytes(color);
+        const hashedColor = sha256(colorBytes);
+        const hashedColorHex = toHex(hashedColor);
+        
+
+        if (hashedColorHex === toHex(hash))
+        return color;
+        
+    }
+    return null;
+    
+}
+
+module.exports = findColor;
