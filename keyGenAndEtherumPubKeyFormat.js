@@ -5,7 +5,7 @@ const { keccak256 } = require("ethereum-cryptography/keccak");
 const privateKey = secp256k1.utils.randomPrivateKey();
 
 const publicKey = secp256k1.getPublicKey(privateKey);
-
+console.log('')
 function getAdress(publicKey){
     const slicedPubKey = publicKey.slice(1);
     const hashedPubKey = keccak256(slicedPubKey);
