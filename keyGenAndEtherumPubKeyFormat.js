@@ -9,7 +9,7 @@ function generateKey(){
     const privateKeyHex = toHex(privateKey);
     const publicKeyHex = toHex(publicKey);
 
-    const adress = getAdress(publicKey);
+    const adress = getAddressEthFormat(publicKey);
     const addressHex = toHex(adress);
 
     return{
