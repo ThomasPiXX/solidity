@@ -110,7 +110,7 @@ app.post("/send", async (req, res) => {
     }
   });
 });
-
+console.log('react is annoying very annoying');
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
