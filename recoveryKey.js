@@ -32,7 +32,7 @@ async function recoverKey (message, signature, recoveryBit) {
     const hashedMessage = hashMessage(message);
 
     const publicKey = secp.recoverPublicKey( hashedMessage, signature, recoveryBit);
-
+    console.log(publicKey);
     return publicKey;
 }
 
