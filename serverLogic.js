@@ -1,138 +1,86 @@
-const express = require("express");
-const app = express();
-const cors = require("cors");
-const port = 3042;
-const { generateKeys } = require("./scripts/generate");
-const crypto = require("crypto");
-const sqlite3= require('sqlite3');
-const db = new sqlite3.Database('key.db');
+import { useState } from "react";
+import server from "./server";
+import { keccak256} from "ethereum-cryptography/keccak"; 
+import { secp256k1 } from "ethereum-cryptography/secp256k1"
+import { utf8ToBytes } from "ethereum-cryptography/utils";
 
+function Transfer({ address, setBalance }) {
+  const [sendAmount, setSendAmount] = useState("");
+  const [recipient, setRecipient] = useState("");
+  const [signature , setSignature] = useState("");
+  const [transactionData, setTransactionData] = useState("");
 
-app.use(cors());
-app.use(express.json());
+  const setValue = (setter) => (evt) => setter(evt.target.value);
 
-const balances = {
-  "7124bc48f5720817e3269ba59d86d6cbbe6244f9": 100,//jf
-  "31c9a9469a482efbe11db0fa0331564296858152": 50,//tom
-  "72233cce05b6a3607d143bf9c34147ee9bbd85d": 75,//kerny
-};
+  async function transfer(evt) {
+    evt.preventDefault();
 
-
-
-app.post("/generateKeys", (req, res)  =>{
-  const { username, password } = req.body;
-
-
-  const { privateKey, publicKey, address } = generateKeys();
-
-  const hashedPrivateKey = hashPrivateKey(privateKey);
-  const hashedPassword = hashPassword(password);
-
-  // Store user data in the database
-  const insertQuery = `
-    INSERT INTO users (username, privateKey, publicKey, password, balance)
-    VALUES (?, ?, ?, ?, ?)`;
+    setTransactionData ({
+      sender: address,
+      amount: parseInt(sendAmount),
+      recipient,
+      signature,
+    });
     
-    const initialBalance = 100;
-  db.run(insertQuery, [username, hashedPrivateKey, publicKey, hashedPassword, initialBalance], (error) => {
-    if (error) {
-      console.error("Error storing user data:", error);
-      res.status(500).send({ message: "Error storing user data" });
-    } else {
-      res.send({ publicKey });
+
+    //hash the transaction data
+    function hashingTransaction(transactionData) {
+    const byteTransactionData = utf8ToBytes(transactionData);
+    const hashingTransaction = keccak256(byteTransactionData);
+    return hashingTransaction;
     }
-  });
-});
-app.get("/balance/:address", (req, res) => {
-  const { address } = req.params;
 
-  db.get("SELECT balance FROM users WHERE publicKey = ?", [address], (error, row) => {
-    if (error) {
-      console.error("Error fetching balance:", error);
-      res.status(500).send({ message: "Error fetching balance" });
-    } else {
-      const balance = row ? row.balance : 0;
-      res.send({ balance });
+    const  hashTransactionData = hashingTransaction(transactionData);
+
+    // Sign the transaction hash
+    const privateKey = "b5587d92872481512a95c8f446f9de74377d470bc36f8f613c99da9cec1d07d3b5587d92872481512a95c8f446f9de74377d470bc36f8f613c99da9cec1d07d3";
+    async function signMessage(transactionHash) {
+      const hashedTransaction = hashingTransaction(transactionHash);
+      return secp256k1.sign(hashedTransaction, privateKey, { recovered: true })
     }
-  });
-});
-
-// Transfer logic
-app.post("/send", async (req, res) => {
-  const { sender, recipient, amount, password } = req.body;
-
-  // Fetch sender's data from the database
-  db.get("SELECT * FROM users WHERE publicKey = ?", [sender], async (error, senderRow) => {
-    if (error) {
-      console.error("Error fetching sender's data:", error);
-      res.status(500).send({ message: "Error fetching sender's data" });
-    } else {
-      const senderBalance = senderRow ? senderRow.balance : 0;
-      const hashedPassword = hashPassword(password); // Hash the entered password
-
-      // Check if the entered password matches the stored hashed password
-      if (hashedPassword !== senderRow.password) {
-        res.status(401).send({ message: "Invalid password" });
-      } else if (senderBalance < amount) {
-        res.status(400).send({ message: "Not enough funds!" });
-      } else {
-        const newSenderBalance = senderBalance - amount;
-
-        // Update sender's balance in the database
-        db.run("UPDATE users SET balance = ? WHERE publicKey = ?", [newSenderBalance, sender], async (updateError) => {
-          if (updateError) {
-            console.error("Error updating sender's balance:", updateError);
-            res.status(500).send({ message: "Error updating sender's balance" });
-          } else {
-            // Fetch recipient's balance from the database
-            db.get("SELECT balance FROM users WHERE publicKey = ?", [recipient], (recipientError, recipientRow) => {
-              if (recipientError) {
-                console.error("Error fetching recipient's balance:", recipientError);
-                res.status(500).send({ message: "Error fetching recipient's balance" });
-              } else {
-                const recipientBalance = recipientRow ? recipientRow.balance : 0;
-                const newRecipientBalance = recipientBalance + amount;
-
-                // Update recipient's balance in the database
-                db.run("UPDATE users SET balance = ? WHERE publicKey = ?", [newRecipientBalance, recipient], (updateRecipientError) => {
-                  if (updateRecipientError) {
-                    console.error("Error updating recipient's balance:", updateRecipientError);
-                    res.status(500).send({ message: "Error updating recipient's balance" });
-                  } else {
-                    res.send({ balance: newSenderBalance });
-                  }
-                });
-              }
-            });
-          }
-        });
-      }
+    const signedTransaction = signMessage(hashTransactionData);
+    setSignature(signedTransaction);
+    try {
+      const {
+        data: { balance },
+      } = await server.post(`send`, {
+        sender: address,
+        amount: parseInt(sendAmount),
+        recipient,
+        signature,
+        transactionData,
+      });
+      setBalance(balance);
+    } catch (ex) {
+      alert(ex.response.data.message);
     }
-  });
-});
-console.log('react is annoying very annoying');
-
-console.log('keep working on the project ... ')
-
-app.listen(port, () => {
-  console.log(`Listening on port ${port}!`);
-});
-
-function setInitialBalance(address) {
-  if (!balances[address]) {
-    balances[address] = 0;
   }
+
+  return (
+    <form className="container transfer" onSubmit={transfer}>
+      <h1>Send Transaction</h1>
+
+      <label>
+        Send Amount
+        <input
+          placeholder="1, 2, 3..."
+          value={sendAmount}
+          onChange={setValue(setSendAmount)}
+        ></input>
+      </label>
+
+      <label>
+        Recipient
+        <input
+          placeholder="Type an address, for example: 0x2"
+          value={recipient}
+          onChange={setValue(setRecipient)}
+        ></input>
+      </label>
+
+      <input type="submit" className="button" value="Transfer" />
+    </form>
+  );
 }
 
-function hashPrivateKey(privatekey){
-  const hash = crypto.createHash("sha256");
-  hash.update(privatekey);
-  return hash.digest("hex");
-}
-
-function hashPassword(password) {
-  const salt = "random_salt_value";
-  const hash = crypto.createHash("sha256");
-  hash.update(password + salt);
-  return hash.digest("hex");
-}
+export default Transfer;
