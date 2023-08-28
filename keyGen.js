@@ -29,3 +29,7 @@ function getAddressEthFormat(publicKey){
 }
 
 module.exports = { generateKey };
+
+console.log(generateKey);
+
+//looking to import secp256k1 
