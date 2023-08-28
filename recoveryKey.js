@@ -38,3 +38,20 @@ async function recoverKey (message, signature, recoveryBit) {
 
 
 console.log("new route for send on ecdsa-node// code reference ");
+
+/*     try {
+    const requestData = JSON.stringify({
+      sender: address,
+      amount: parseInt(sendAmount),
+      recipient,
+      signature,
+      transactionData,
+    });
+    const {
+      data: { balance },
+    } = await server.post(`send`,requestData);
+    setBalance(balance);
+  } catch (ex) {
+    alert(ex.response.data.message);
+  }
+  */
