@@ -1,89 +1,73 @@
-import { useState } from "react";
-import server from "./server";
-import { keccak256} from "ethereum-cryptography/keccak"; 
-import { secp256k1 } from "ethereum-cryptography/secp256k1"
-import { utf8ToBytes } from "ethereum-cryptography/utils";
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const port = 3042;
+const { utf8ToBytes } = require("ethereum-cryptography/utils");
+const { keccak256 } = require("ethereum-cryptography/keccak");
+const secp = require("ethereum-cryptography/secp256k1");
 
-function Transfer({ address, setBalance }) {
-  const [sendAmount, setSendAmount] = useState("");
-  const [recipient, setRecipient] = useState("");
-  const [signature , setSignature] = useState("");
-  const [transactionData, setTransactionData] = useState("");
 
-  const setValue = (setter) => (evt) => setter(evt.target.value);
+app.use(cors());
+app.use(express.json());
 
-  async function transfer(evt) {
-    evt.preventDefault();
+const balances = {
+  //private key:d4cd1a901430652520b3ddfa7ba4a18a9f860174f4754480f61c6392f169925b
+  "024e1a3fa81d9b476ed7cb6bbb45a9cd6ffea8c669a4a3514f179d72c33217376b": 100,
+  //private Key:69664ba50f99461bf012ff79c2408724b0ac786db0b69e129edaf02086e322b6
+  "033c5418b06daf178d8d80f58c430131ef67f760a69c818421de1f1f814c143562": 50,
+  //private Key:d043ee709c334a45fe5f15cd981497a58d609171ffc0134732db20f80e624946
+  "0350dab3331336322c2e7b662bf933dc05759050a104c15829b2450d1d19ea9908": 75,
 
-    setTransactionData ({
-      sender: address,
-      amount: parseInt(sendAmount),
-      recipient,
-      signature,
-    });
-    
+};
 
-    //hash the transaction data
-    function hashingTransaction(transactionData) {
-    const byteTransactionData = utf8ToBytes(transactionData);
-    const hashingTransaction = keccak256(byteTransactionData);
-    return hashingTransaction;
-    }
+app.get("/balance/:address", (req, res) => {
+  const { address } = req.params;
+  const balance = balances[address] || 0;
+  res.send({ balance });
+});
 
-    const  hashTransactionData = hashingTransaction(transactionData);
+app.post("/send", async (req, res) => {
 
-    // Sign the transaction hash
-    const privateKey = "b5587d92872481512a95c8f446f9de74377d470bc36f8f613c99da9cec1d07d3b5587d92872481512a95c8f446f9de74377d470bc36f8f613c99da9cec1d07d3";
-    async function signMessage(transactionHash) {
-      const hashedTransaction = hashingTransaction(transactionHash);
-      return secp256k1.sign(hashedTransaction, privateKey, { recovered: true })
-    }
-    const signedTransaction = signMessage(hashTransactionData);
-    setSignature(signedTransaction);
+  //TODO: get a signature from the client-side application
+  //recover the public address from the signature 
 
-    //TODO stringify  the transaction data
+  const { sender, recipient, amount, signature, hashedMessage } = req.body;
   
-    try {
-      const {
-        data: { balance },
-      } = await server.post(`send`, {
-        sender: address,
-        amount: parseInt(sendAmount),
-        recipient,
-        signature,
-        transactionData,
-      });
-      setBalance(balance);
-    } catch (ex) {
-      alert(ex.response.data.message);
-    }
+  //get sign from client 
+
+  let parseSignature = JSON.parse(signature);
+  parseSignature.r = BigInt(parseSignature.r);
+  parseSignature.s = BigInt(parseSignature.s);
+
+  console.log("restored Signature : ", parseSignature);
+
+  isVerified = secp.secp256k1.verify(parseSignature, hashedMessage, sender);
+
+  console.log('isVerified : ', isVerified);
+
+  if(!isVerified) {
+    res.status(400).send({message:"transaction Denied"});
+    return;
   }
 
-  return (
-    <form className="container transfer" onSubmit={transfer}>
-      <h1>Send Transaction</h1>
+  setInitialBalance(sender);
+  setInitialBalance(recipient);
 
-      <label>
-        Send Amount
-        <input
-          placeholder="1, 2, 3..."
-          value={sendAmount}
-          onChange={setValue(setSendAmount)}
-        ></input>
-      </label>
+  if(balances[sender] < amount) {
+    res.status(400).send({ message: "Not enough found"});
+  }else{
+    balances[sender] -= amount;
+    balances[recipient] += amount;
+    res.send({balance: balances[sender], isVerified});
+  }
+});
+app.listen(port, () => {
+  console.log(`Listening on port ${port}!`);
+});
 
-      <label>
-        Recipient
-        <input
-          placeholder="Type an address, for example: 0x2"
-          value={recipient}
-          onChange={setValue(setRecipient)}
-        ></input>
-      </label>
-
-      <input type="submit" className="button" value="Transfer" />
-    </form>
-  );
+function setInitialBalance(address) {
+  if (!balances[address]) {
+    balances[address] = 0;
+  }
 }
 
-export default Transfer;
