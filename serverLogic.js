@@ -42,6 +42,7 @@ function Transfer({ address, setBalance }) {
     setSignature(signedTransaction);
 
     //TODO stringify  the transaction data
+  
     try {
       const {
         data: { balance },
