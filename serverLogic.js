@@ -71,3 +71,6 @@ function setInitialBalance(address) {
   }
 }
 
+
+
+//issue with fetching balance and setIsVerified 
