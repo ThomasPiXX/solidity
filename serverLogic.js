@@ -41,7 +41,7 @@ app.post("/send", async (req, res) => {
 
   console.log("restored Signature : ", parseSignature);
 
-  isVerified = secp.secp256k1.verify(parseSignature, hashedMessage, sender);
+  let isVerified = secp.secp256k1.verify(parseSignature, hashedMessage, sender);
 
   console.log('isVerified : ', isVerified);
 
@@ -73,4 +73,4 @@ function setInitialBalance(address) {
 
 
 
-//issue with fetching balance and setIsVerified 
+//issue when sending the transaction , transfer.jsx , line 42 ??? 
