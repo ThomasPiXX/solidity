@@ -72,5 +72,3 @@ function setInitialBalance(address) {
 }
 
 
-
-//issue when sending the transaction , transfer.jsx , line 42 ??? 
