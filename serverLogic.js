@@ -70,5 +70,3 @@ function setInitialBalance(address) {
     balances[address] = 0;
   }
 }
-
-
