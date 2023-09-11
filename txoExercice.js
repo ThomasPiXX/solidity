@@ -1,3 +1,5 @@
+//utxo to txo
+
 class TXO{
     constructor(owner, amount){
         this.owner = owner;
