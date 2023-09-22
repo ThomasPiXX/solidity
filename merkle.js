@@ -38,12 +38,13 @@ class MerkleTree {
     }
     const proof = [];
     let currentIndex = index;
+    let isLeft = isLeft;
 
     //iterates through the layers of the tree, from the leaf layer
     //math log 2 example , Math.log2(8) = 3
     for (let i = 0; i < Math.log2(this.leaves.length); i++) {
         // currentIndex % 2 if === 1 === left, else === 0 === right
-        const isLeft = currentIndex % 2 === 1;
+        let isLeft = currentIndex % 2 === 1;
         // finding the location of the sibling leaf 
         const siblingIndex = isLeft ? currentIndex + 1 : currentIndex - 1;
         // get the sibling hash and assign it 
@@ -59,3 +60,4 @@ class MerkleTree {
 }
 
 module.exports = MerkleTree;
+
