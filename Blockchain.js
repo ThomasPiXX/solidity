@@ -37,15 +37,3 @@ const block = new Block('euh euh euh')
 Blockchain.addBlock(block);
 
 
-class Car{
-    constructor(brand, color){
-        this.brand = brand;
-        this.color = color;
-    }
-}
-
-
-const car1 = new Car('tesla', 'blakc');
-
-
-console.log(car1);
