@@ -12,33 +12,36 @@ class TrieNode {
 class Trie {
     constructor(root) {
         this.root = new TrieNode(root)
+        this.words = [];
     }
 
-insert(word) {
-    let currentNode = this.root;
-    let branchNode = null;
-    
-    for (let i = 0; i < word.length; i++) {
-        const key = word[i];
+    contains(element) {
+         let containsElement = false;
 
-        if (!currentNode.children[key]) {
-            currentNode.children[key] = new TrieNode(key);
-        } else {
-            if (branchNode) {
-                const newKey = word[i + 1];
-                if (!branchNode.children[newKey]) {
-                    branchNode.children[newKey] = new TrieNode(newKey);
-                }
-                currentNode = branchNode.children[newKey];
-                branchNode = null;
-            }
-        }
+         this.words.forEach(word => {
+             if(word === element) {
+                 containsElement = true;
+             }
+         });
+         return containsElement;
+    }
+
+    insert(word) {
+        let currentNode = this.root;
+        this.words.push(word);
         
-        currentNode = currentNode.children[key];
+        for (let i = 0; i < word.length; i++) {
+            const key = word[i];
+            
+
+            if (!currentNode.children[key]) {
+                currentNode.children[key] = new TrieNode(key);
+            }
+            currentNode = currentNode.children[key];
+        }
+
+        currentNode.isWord = true;
+        
     }
 
-    currentNode.isWord = true;
 }
-
-}
-
