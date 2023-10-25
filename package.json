@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "alchemy-sdk": "^2.10.1",
     "ethereum-cryptography": "^2.1.2"
   }
 }
