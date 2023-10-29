@@ -21,6 +21,7 @@ const sentTransactions = alchemy.core.getAssetTransfers({
 }).then(console.log);
 */
 
+// get the node leaf balance/address from an extension node address
 const balance = alchemy.core
     .getTokenBalances('0x994b342dd87fc825f66e51ffa3ef71ad818b6893')
     .then(data => {

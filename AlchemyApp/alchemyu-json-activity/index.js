@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const ALCHEMY_URL = "https://eth-goerli.g.alchemy.com/v2/R_cs2uMoZi4ZbwxjAEjuRXsdd0vzVuhs"
 
-/*
+
 axios.post(ALCHEMY_URL, {
     jsonrpc: "2.0",
     id: 1,
@@ -13,8 +13,9 @@ axios.post(ALCHEMY_URL, {
     ]
 }).then((response) =>{
     console.log(response.data.result);
-});*/
+});
 
+/*
 axios.post(ALCHEMY_URL, {
     jsonrpc: "2.0",
     method : "eth_getBalance",
@@ -25,3 +26,4 @@ axios.post(ALCHEMY_URL, {
 }).then((response) => {
     console.log(response.data.result);
 });
+*/
