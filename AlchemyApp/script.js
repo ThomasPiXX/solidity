@@ -7,8 +7,10 @@ const settings = {
 
 const alchemy = new Alchemy(settings);
 
+/*
 // get the latest block
 const latestBlock = alchemy.core.getBlock("latest").then(console.log);
+*/
 
 /*
 // get all the sent transactions from given address
@@ -18,3 +20,15 @@ const sentTransactions = alchemy.core.getAssetTransfers({
     category: ["erc721", "external", "erc20"],
 }).then(console.log);
 */
+
+const balance = alchemy.core
+    .getTokenBalances('0x994b342dd87fc825f66e51ffa3ef71ad818b6893')
+    .then(data => {
+        const tokenBalances = data.tokenBalances.map(balance => {
+            return {
+                contractAddress: balance.contractAddress,
+                tokenBalance: parseInt(balance.tokenBalance, 16) // Convert hexadecimal to decimal
+            }
+        });
+        console.log({ address: data.address, tokenBalances });
+    });
