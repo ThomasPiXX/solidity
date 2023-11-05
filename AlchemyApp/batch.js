@@ -19,8 +19,6 @@ async function getBalance(addresses){
     console.log(totalBalance);
     
     return totalBalance;
-
-
 }
 
 
