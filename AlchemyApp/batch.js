@@ -14,7 +14,7 @@ async function getBalance(addresses){
 
     const  { data } = await axios.post(url, batch)
 
-    const totalBalance = data.reduce((acc, cur) => parseInt(acc, 16) + parseInt(cur.result, 16), 0);
+    const totalBalance = data.reduce((acc, cur) => acc + parseInt(cur.result, 16), 0);
 
     console.log(totalBalance);
     
