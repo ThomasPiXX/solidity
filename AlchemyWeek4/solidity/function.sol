@@ -55,3 +55,37 @@ private - only this contract can call
 🚨 State variables work off the same exact criteria for visibility. State variables can be declared as public, private, or internal but not external.
 */
 
+//fun example of a contract 
+
+
+contract VendingMachine {
+    mapping(string => uint) public inventory; // Tracks inventory of items like soda and chips
+    mapping(string => uint) public prices;    // Tracks prices of items
+
+    constructor() {
+        // Initialize the inventory and prices
+        inventory["soda"] = 100;  // 100 sodas in the vending machine
+        inventory["chips"] = 100; // 100 bags of chips in the vending machine
+        prices["soda"] = 1 ether; // Set price for soda
+        prices["chips"] = 0.5 ether; // Set price for chips
+    }
+
+    // External function to purchase items
+    function purchase(string calldata item, uint amount) external payable {
+        require(inventory[item] >= amount, "Not enough inventory.");
+        require(msg.value >= prices[item] * amount, "Not enough Ether provided.");
+        
+        inventory[item] -= amount; // Reduce the inventory by the purchased amount
+        
+        // Optionally refund any excess Ether sent
+        if (msg.value > prices[item] * amount) {
+            payable(msg.sender).transfer(msg.value - (prices[item] * amount));
+        }
+    }
+
+    // Function to restock items
+    function restock(string calldata item, uint amount) public {
+        inventory[item] += amount;
+    }
+}
+
