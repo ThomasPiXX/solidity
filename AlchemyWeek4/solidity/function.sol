@@ -107,6 +107,10 @@ contract Contract {
         x = _x;
     }
 
+    function add(uint _x) external view returns(uint){
+        return x + _x;
+    }
+
     function increment() external{
         x++;
     }
