@@ -89,3 +89,25 @@ contract VendingMachine {
     }
 }
 
+
+contract Contract {
+    bool public isOpen;
+
+    constructor(bool _isOpen) {
+        isOpen = true;
+    }
+}
+
+
+contract Contract {
+    
+    uint public x;
+    
+    constructor(uint _x){
+        x = _x;
+    }
+
+    function increment() external{
+        x++;
+    }
+}
