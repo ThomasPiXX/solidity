@@ -115,3 +115,18 @@ contract Contract {
         x++;
     }
 }
+
+contract Contract{
+
+    uint public x;
+
+
+    constructor(uint _x){
+        x = _x;
+    }
+
+    function double(uint _x) external pure returns(uint sum){
+
+        sum = _x *2;
+    }
+}
