@@ -130,3 +130,17 @@ contract Contract{
         sum = _x *2;
     }
 }
+
+
+
+const ethers = require('ethers');
+
+
+ async function deposit(contract, charityId) {
+
+    await contract.deposit({
+        value: ethers.utils.parseEther('1')
+    });
+}
+
+module.exports = deposit;
