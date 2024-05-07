@@ -7,8 +7,7 @@ async function main() {
     const counter = await Counter.deploy();
     console.log("Deployment submitted, waiting for confirmation...");
 
-    await counter.deployTransaction.wait();
-    console.log("Deployment confirmed.");
+ 
 
     console.log(`Counter Contract Deployed to: ${counter.address}`);
 }
